@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+[[ -z "$1" ]] && { echo >&2 "Usage: port_clearer [PORT]"; exit 255; }
+
+portnum="$(lsof -ti4TCP:"$1")"
+[[ $? -ne 0 ]] && { echo >&2 "No program is using port "$1""; exit 1; }
+
+kill "$portnum"
+echo "Port "$1" killed."

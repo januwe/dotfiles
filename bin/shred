@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# test if file exists
+[[ -z $1 || ! -f "$1" ]] && { echo >&2 "shred [FILE]"; return 255; }
+
+# start shredding file
+dd status=none bs=1k count=$(du -sk ${1:?} | cut -f1) if=/dev/urandom >"$1"
+rm -f "${1:?}"
