@@ -1,0 +1,1 @@
+alias glr=git_latest_release
