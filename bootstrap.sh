@@ -67,29 +67,53 @@ fi
 symlink_file() {
 	local src=$1 dst=$2
 
-	local skip
-	# check if dst file already exists and ask what to do
-	if [ -h "$dst" ] || [ -f "$dst" ] || [ -d "$dst" ]; then
-		local src_current="$(readlink $dst)"
-
-		# skip if dst file is a symlink already
-		if ! [ "$src_current" == "$dst" ]; then
-			# ask what to do, overwrite || skip || backup
-			info "Something for future uwe."
-		fi
+    local file=""
+	# check if dst file already exists 
+	if [ -e $dst ]; then
+        info "${dst} already exists... Skipping."
+        # TODO: add backup function
+    else
+        file=$(basename "$src")
+        info "Creating symlink for $file" && sleep 0.5
+        ln -s "$src" "$dst" && success "linked $src to $dst"
 	fi
+}
 
-	# link file if skip is empty or "false"
-	if ! [ "$skip" == "true" ]; then
-		# ln -s "$src" "$dst"
-		success "linked $src to $dst"
+copy_dir() {
+	local src=$1 orgdst=$2
+
+    local dir=$(basename "$src")
+    local dst="$orgdst/$dir"
+	# check if dst file already exists 
+	if [ -e $dst ]; then
+        info "${dst} already exists... Skipping."
+        # TODO: add backup function
+    else
+        info "Copying $dir to $orgdst" && sleep 1
+        cp -R "$src" "$orgdst" && success "Copied $dir to $orgdst"
+	fi
+}
+
+copy_file() {
+	local src=$1 orgdst=$2
+
+    local file=$(basename "$src")
+    local dst="$orgdst/$file"
+	# check if dst file already exists 
+	if [ -e $dst ]; then
+        info "${dst} already exists... Skipping."
+        # TODO: add backup function
+    else
+        info "Copying $file to $orgdst" && sleep 1
+        cp "$src" "$orgdst" && success "Copied $file to $orgdst"
 	fi
 }
 
 install_dotfiles() {
 	clear
-	info "Installing dotfiles" && sleep 1
+	info "Installing dotfiles\n" && sleep 1
 
+    info "Symlinking files...\n"
 	find -H "$DOTFILES" -maxdepth 2 -name '*.symlink' -not -path '*.git*' | while read linkfile
 	do
 		cat "$linkfile" | while read line
@@ -100,14 +124,38 @@ install_dotfiles() {
 			dir=$(dirname $dst)
 
 			if ! [ -d $dir ]; then
-				# info "Creating $dir ..." && mkdir -p "$dir"
-				info "$dir"
+				info "Creating $dir ..." && mkdir -p "$dir" && sleep 0.5
 			fi
 
 			symlink_file "$src" "$dst"
 		done
 	done
+
+    echo ''
+    info "Copying config files..."
+    for confdir in $(find -H "$DOTFILES" -maxdepth 2 -name 'config' -not -path '*.git*');
+    do
+        local dir dst name
+
+        dir=$(dirname $confdir)
+        name=$(echo "$dir" | sed 's|.*/||')
+        dst="$HOME/.config/$name"
+        if ! [ -d $dst ]; then
+		    info "Creating $dst ..." && mkdir -p "$dst" && sleep 0.5
+        fi
+
+        for file in $(find -H "$confdir" -maxdepth 1 | tail -n+2);
+        do
+            # copy files
+            if [ -d $file ]; then
+                copy_dir "$file" "$dst"
+            else
+                copy_file "$file" "$dst"
+            fi
+        done
+    done
 }
+
 
 
 # create env file
