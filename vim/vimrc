@@ -1,0 +1,86 @@
+" enable file type detection
+filetype on
+" enable plugins and load them for detected file type
+filetype plugin on
+" load indent file for detected file type
+filetype indent on
+
+syntax enable
+
+" set theme color to dracula
+" allow transparency - https://github.com/dracula/vim/issues/88#issuecomment-396075625
+let g:dracula_colorterm = 0
+colorscheme dracula
+
+" enable relative line + line numberes
+set number
+set relativenumber
+
+" Show line numbers
+set number
+" Set tab size to 4 spaces
+set tabstop=4
+" Set shift width to 4 spaces
+set shiftwidth=4
+" Use spaces instead of tabs
+set expandtab
+
+" don't let cursor scroll below or above N number of lines when scrolling
+set scrolloff=10
+
+" while searching incrementally highlight matching characters as you type
+set incsearch
+" show matching words during search
+set showmatch
+" use highlighting when searching
+set hlsearch
+
+" set history to 1000 (default 20)
+set history=1000
+
+
+" Enable auto completion menu after pressing TAB.
+set wildmenu
+" Make wildmenu behave like similar to Bash completion.
+set wildmode=list:longest
+" There are certain files that we would never want to edit with Vim.
+" Wildmenu will ignore files with these extensions.
+set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx
+
+"	   "
+" MAPPINGS "
+" 	   "
+
+" Set space as leader key
+let mapleader = " "
+
+" Press double space to jump back to last cursor position
+nnoremap <leader><space> ``
+
+" first clear highlighting and then redraw screen - https://vi.stackexchange.com/a/8248
+nnoremap <C-l> :nohl<CR><C-L>
+
+" Center the cursor vertically when moving to the next word during a search.
+nnoremap n nzz
+nnoremap N Nzz
+
+" You can split the window in Vim by typing :split or :vsplit.
+" Navigate the split view easier by pressing CTRL+j, CTRL+k, CTRL+h, or CTRL+l.
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+
+" Resize split windows using arrow keys by pressing:
+" CTRL+UP, CTRL+DOWN, CTRL+LEFT, or CTRL+RIGHT.
+noremap <c-up> <c-w>+
+noremap <c-down> <c-w>-
+noremap <c-left> <c-w>>
+noremap <c-right> <c-w><
+
+" import statusline
+try
+    source ~/.vim/configs/statusline.vim
+catch
+    " No such file, ignoring.
+endtry
