@@ -47,7 +47,7 @@ install_gum() {
 
 # check for gum here
 info "Checking if gum is installed..." && sleep 0.5
-if ! command -v guma &>/dev/null; then
+if ! command -v gum &>/dev/null; then
 	error "gum is not installed!"
 	read -p "$(user "Do want me to install gum? [Y/n]: ")" answer
 
