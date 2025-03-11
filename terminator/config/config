@@ -1,0 +1,23 @@
+[global_config]
+[keybindings]
+[profiles]
+  [[default]]
+    background_color = "#24273a"
+    background_darkness = 0.9
+    background_type = transparent
+    foreground_color = "#cad3f5"
+    palette = "#494d64:#ed8796:#a6da95:#eed49f:#8aadf4:#f5bde6:#8bd5ca:#b8c0e0:#5b6078:#ed8796:#a6da95:#eed49f:#8aadf4:#f5bde6:#8bd5ca:#a5adcb"
+    title_transmit_fg_color = "#8bd5ca"
+    title_transmit_bg_color = "#494d64"
+    title_receive_bg_color = "#f0c6c6"
+    title_inactive_fg_color = "#cad3f5"
+    title_inactive_bg_color = "#24273a"
+[layouts]
+  [[default]]
+    [[[window0]]]
+      type = Window
+      parent = ""
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+[plugins]
