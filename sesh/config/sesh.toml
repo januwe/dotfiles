@@ -3,12 +3,18 @@
 preview_command = "exa --all --git --icons --color=always {}"
 
 [[session]]
-name = "Downloads"
-path = "~/Downloads"
-startup_command = "exa --all --git --icons --color=always"
+name = "zshrc"
+path = "~/"
+startup_command = "vim .zshrc"
+preview_command = "bat --color=always ~/.zshrc"
 
 [[session]]
 name = "tmux config"
 path = "~/.config/tmux"
 startup_command = "vim tmux.conf"
 preview_command = "bat --color=always ~/.config/tmux/tmux.conf"
+
+[[session]]
+name = "Downloads"
+path = "~/Downloads"
+startup_command = "exa --all --git --icons --color=always"
