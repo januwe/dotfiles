@@ -62,21 +62,44 @@ if ! command -v gum &>/dev/null; then
 	esac
 fi
 
+# file already exists handling
+exists_handling() {
+    local dst=$1 ans=$2
+
+	if [ -z $ans ]; then
+		ans="s"
+	fi
+
+    file=$(basename "$dst")
+	case $ans in
+		"s" ) info "Skipping ${file}."; sleep 0.5; return 100;;
+		"b" ) info "Backing up ${file} to ${file}.bak." && /usr/bin/mv "${dst}"{,.bak}; sleep 0.5; return 200 ;;
+		"r" ) info "Deleting ${file}." && /usr/bin/rm -f "${dst}" 2>/dev/null; sleep 0.5; return 200 ;;
+        * ) die "No valid answer! Use s,b or r. (default: skip) Exiting..."
+	esac
+
+}
+
 # installing dotfiles (linking files)
 ### all files ending with .symlink containing src:dest
 symlink_file() {
 	local src=$1 dst=$2
 
-    local file=""
+    local file="" skip
 	# check if dst file already exists 
 	if [ -e $dst ]; then
-        info "${dst} already exists... Skipping."
-        # TODO: add backup function
-    else
+        info "${dst} already exists..."
+        # ask if skip, backup or remove
+        read -p "$(user "Do you want to [s]kip, [b]ackup or [r]emove ${dst}? ")" answer < /dev/tty
+
+        exists_handling "$dst" "$answer"
+	fi
+
+    if [ $? -ne 100 ]; then
         file=$(basename "$src")
         info "Creating symlink for $file" && sleep 0.5
         ln -s "$src" "$dst" && success "linked $src to $dst"
-	fi
+    fi
 }
 
 copy_dir() {
@@ -87,8 +110,13 @@ copy_dir() {
 	# check if dst file already exists 
 	if [ -e $dst ]; then
         info "${dst} already exists... Skipping."
-        # TODO: add backup function
-    else
+        # ask if skip, backup or remove
+        read -p "$(user "Do you want to [s]kip, [b]ackup or [r]emove ${dst}? ")" answer < /dev/tty
+
+        exists_handling "$dst" "$answer"
+    fi
+
+    if [ $? -ne 100 ]; then
         info "Copying $dir to $orgdst" && sleep 1
         cp -R "$src" "$orgdst" && success "Copied $dir to $orgdst"
 	fi
@@ -102,8 +130,13 @@ copy_file() {
 	# check if dst file already exists 
 	if [ -e $dst ]; then
         info "${dst} already exists... Skipping."
-        # TODO: add backup function
-    else
+        # ask if skip, backup or remove
+        read -p "$(user "Do you want to [s]kip, [b]ackup or [r]emove ${dst}? ")" answer < /dev/tty
+
+        exists_handling "$dst" "$answer"
+    fi
+
+    if [ $? -ne 100 ]; then
         info "Copying $file to $orgdst" && sleep 1
         cp "$src" "$orgdst" && success "Copied $file to $orgdst"
 	fi
@@ -113,7 +146,7 @@ install_dotfiles() {
 	clear
 	info "Installing dotfiles\n" && sleep 1
 
-    info "Symlinking files...\n"
+    info "Symlinking files..."
 	find -H "$DOTFILES" -maxdepth 2 -name '*.symlink' -not -path '*.git*' | while read linkfile
 	do
 		cat "$linkfile" | while read line
@@ -154,15 +187,9 @@ install_dotfiles() {
             fi
         done
     done
+
+    # Replace DOTFILES var in ~/.zshrc
+    /usr/bin/sed -ri "s/^(export DOTFILES=\")(.*?)(\")$/\1$DOTFILES\3/" "$HOME/.zshrc"
 }
 
-
-
-# create env file
-
-### TESTING ###
-# info "ThIs Is A tEsT!"
-# error "Test ERRRRRRRRRRRRRROR!"
-# success "Yay, it works!"
-# die "Died."
 install_dotfiles
