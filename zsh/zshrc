@@ -1,0 +1,74 @@
+export DOTFILES="kacki"
+export TERM=xterm-256color
+
+export EDITOR='vim'
+
+# load the path files, excluding aliases.zsh
+typeset -U config_files
+typeset -U alias_files
+config_files=($DOTFILES/**/*.zsh)
+alias_files=($(echo "${config_files}" | grep 'aliases\.zsh$'))
+config_files=($(echo "${config_files}" | grep -v 'aliases\.zsh$'))
+
+#------------------------------------------------------
+# Better History
+#------------------------------------------------------
+setopt SHARE_HISTORY        # share history between all sessions
+setopt HIST_IGNORE_SPACE    # don't record commands that start with a space
+setopt INC_APPEND_HISTORY   # write to $HISTFILE immediately, not just when exiting the shell
+setopt HIST_IGNORE_ALL_DUPS # remove old duplicates from history
+setopt HIST_VERIFY          # don't execute immediately when picking from history
+HISTSIZE=50000              # store more than the default 10_000 entries
+SAVEHIST=$HISTSIZE          # and also store all these entries in our $HISTFILE
+
+#------------------------------------------------------
+# Paths - load path.zsh from config_files
+#------------------------------------------------------
+for file in ${(M)config_files:#*/path.zsh}
+do
+  source $file
+done
+
+#------------------------------------------------------
+# Plugins / Functions
+#------------------------------------------------------
+# load plugins / functions from $ZSH/plugins or $ZSH/custom/plugins
+
+#------------------------------------------------------
+# Prompt
+#------------------------------------------------------
+
+#------------------------------------------------------
+# Aliases
+#------------------------------------------------------
+#
+# find all aliases.zsh from $DOTFILES and source them
+
+alias urlencode='python3 -c "import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read()))"'
+
+#------------------------------------------------------
+# Distrobox settings
+#------------------------------------------------------
+if [[ -n $CONTAINER_ID ]]; then
+  eval "$(navi widget zsh)"
+  eval "$(zoxide init zsh)"
+
+  function sesh-sessions() {
+    {
+        exec </dev/tty
+        exec <&1
+        local session
+        session=$(sesh list -t -c | fzf --height 40% --reverse --border-label ' sesh ' --border --prompt '⚡  ')
+        zle reset-prompt > /dev/null 2>&1 || true
+        [[ -z "$session" ]] && return
+        sesh connect $session
+    }
+  }
+
+  zle     -N             sesh-sessions
+  bindkey -M emacs '\es' sesh-sessions
+  bindkey -M vicmd '\es' sesh-sessions
+  bindkey -M viins '\es' sesh-sessions
+
+  alias cat='bat'
+fi
