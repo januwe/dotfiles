@@ -58,7 +58,7 @@ let mapleader = " "
 nnoremap <leader><space> ``
 
 " first clear highlighting and then redraw screen - https://vi.stackexchange.com/a/8248
-nnoremap <C-l> :nohl<CR><C-L>
+nnoremap <leader>l :nohl<CR><C-L>
 
 " Center the cursor vertically when moving to the next word during a search.
 nnoremap n nzz
