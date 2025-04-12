@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+clear
 gum style \
     --foreground 12 --border-foreground 12 --border double \
     --align center --width 50 --margin "1 1" --padding "1 2" \
@@ -14,16 +15,16 @@ gum style \
 
 '
 
-gum spin --show-output --spinner minidot --title "Updating apt..." -- sudo apt update 2&>/dev/null | tail -n1
+gum spin --show-output --spinner minidot --title "Updating apt..." -- distrobox-host-exec sudo apt update  | tail -n1
 printf "\n"
 
-OUTDATED=$(gum spin --show-output --spinner minidot --title "Listing upgrableable packages" -- apt list --upgradable 2>/dev/null| tail -n+2 | awk -F'/' 'BEGIN {ORS=" "}; {print $1}')
+OUTDATED=$(gum spin --show-output --spinner minidot --title "Listing upgrableable packages" -- distrobox-host-exec apt list --upgradable 2>/dev/null| tail -n+2 | awk -F'/' 'BEGIN {ORS=" "}; {print $1}')
 
 if [[ -n "$OUTDATED" ]]; then
     echo "$OUTDATED"
-    gum confirm --selected.background=2 --selected.foreground=0 "Upgrade the outdated packages above?" && sudo apt upgrade -y 2>/dev/null
+    gum confirm --selected.background=2 --selected.foreground=0 "Upgrade the outdated packages above?" && distrobox-host-exec sudo apt upgrade -y 2>/dev/null 
     printf "\n"
-    gum spin --show-output --spinner minidot --title "Autocleaning apt packages and cache..." -- $(sudo apt autoremove -y 2>/dev/null && sudo apt autoclean 2>/dev/null)
+    gum spin --show-output --spinner minidot --title "Autocleaning apt packages and cache..." -- distrobox-host-exec sudo apt autoremove -y 2>/dev/null && sudo apt autoclean 2>/dev/null
 else
     echo "All packages are up to date."
     printf "\n"
